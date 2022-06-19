@@ -8,8 +8,15 @@ class UserService {
     if (!this.isLogedIn) {
       return this.userClient
         .login(id, password) //
-        .then((data) => (this.isLogedIn = true));
+        .then((data) => {
+          this.isLogedIn = true
+          this.data = data;
+        });
     }
+  }
+
+  get userInfo(){
+    return this.data;
   }
 }
 
