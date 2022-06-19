@@ -311,7 +311,7 @@ describe('mock test',()=>{
 
 ```
 
-### Mock 으로 class 간의 의존성 제거 하기
+### Mock 으로 class 간의 의존성 제거 하기 (Dependency Injection)
 
 ```js
 const ProductService = require('../product_service_no_di.js');
@@ -350,6 +350,39 @@ describe('ProductService',()=>{
 })
 ```
 
-## Stub
+## Test stub
 
+> Mock 은 유용하지만, 오히려 테스트 코드가 복잡해 보이기도한다. 남용이라고 표현이 가능할 만큼, 딱히 클린한 코드는 아니다.
+> 그래서 별도의 jest 기능은아니지만 Stub 을 활용한다.
+> 'dummy객체가 마치 실제로 동작하는 것 처럼 보이도록 만들어놓은 것'
+> 테스트에서만 사용되기 때문에 test 폴더가 있다면 그 안에 넣는다.
+> 마찬가지로 의존성을 제거하기 위해서 Mock 대신 사용하기 위한 용도이다.
 
+### 원래 코드
+
+```js
+class ProductClient {
+  fetchItems() {
+    return fetch('http://example.com/login/id+password').then((response) =>
+      response.json()
+    );
+  }
+}
+module.exports = ProductClient;
+```
+
+### Stub 코드
+
+```js
+class StubProductClient {
+    async fetchItems() {
+        return [
+            {item:'😍',available:true},
+            {item:'🚀',available:false},
+            {item:'🎉',available:true},
+        ]
+    }
+}
+
+module.exports = StubProductClient;
+```
