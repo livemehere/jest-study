@@ -202,3 +202,59 @@ All files      |   85.36 |    85.71 |      75 |   85.36 |
 //     this.value = sum;
 // }
 ```
+
+## 비동기 테스트하기
+
+> ERR_UNHANDLED_REJECTION 에러가 발생한다.
+> then() 방식으로 체크하려면 it의 인자로 들어오는 doneCallback 을 호출해주어야한다.
+
+```js
+    it('async-done',()=>{
+        fetchProduct().then(result=>{
+            expect(result).toEqual({name:'kong',job:'FE developer'})
+        })
+    })
+```
+
+> 이렇게 done()을 호출해주면되는데, 실패하는 케이스의 경우 done()의 실행시간이 5초를 넘아가기 때문에, 이방식 보다는 Promise 자체를 return 하면 같은 효과를 누릴 수 있다.
+
+```js
+    it('async-done',(done)=>{
+        fetchProduct().then(result=>{
+            expect(result).toEqual({name:'kong',job:'FE developer'})
+            done();
+        })
+    })
+```
+
+```js
+    it('async return',()=>{
+        return fetchProduct().then(result=>{
+            expect(result).toEqual({name:'kong',job:'FE developer'})
+        })
+    })
+```
+
+> async - await 방식
+
+```js
+    it('async await',async ()=>{
+    const result = await fetchProduct();
+    expect(result).toEqual({name:'kong',job:'FE developer'})
+})
+```
+
+> resolves, rejects 방식
+
+```js
+    it('async resolves',()=>{
+        return expect(fetchProduct()).resolves.toEqual({name:'kong',job:'FE developer'})
+    })
+
+    it('async rejects',()=>{
+        return expect(fetchProduct('error')).rejects.toBe('network error')
+    })
+```
+
+## Mock
+
