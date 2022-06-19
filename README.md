@@ -258,3 +258,94 @@ All files      |   85.36 |    85.71 |      75 |   85.36 |
 
 ## Mock
 
+> 어떤 함수를 구현해서 테스트해야한다면 jest.fn() 을 사용해서 함수의 형태만 만들어두고 테스트할 수 있다.
+> 함수가 몇번, 어떤인자로 .. 등등 을 테스트 할 수 있다.
+
+```js
+const check = require("../check");
+
+describe('mock',()=>{
+    let onSuccess;
+    let onFail;
+    beforeEach(()=>{
+        onSuccess = jest.fn();
+        onFail = jest.fn();
+    })
+
+    it('onSucess and onFail should be call on predicate',()=>{
+        check(()=> true,onSuccess,onFail);
+        expect(onSuccess).toHaveReturnedTimes(1);
+        expect(onSuccess).toHaveBeenCalledWith('yes');
+    })
+
+    it('should be call onFail',()=>{
+        check(()=> false,onSuccess,onFail);
+        expect(onFail).toHaveBeenCalledWith('no');
+        expect(onFail).toHaveReturnedTimes(1);
+    })
+
+})
+```
+
+### Mock 활용
+
+```js
+describe('mock test',()=>{
+    let fetchItems = jest.fn(async()=>{
+        return [
+            {item:'😍',available:true},
+            {item:'🚀',available:false},
+            {item:'🎉',available:true},
+        ]
+    })
+    it('return array',async ()=>{
+        const result = await fetchItems();
+        expect(result).toEqual([
+            {item:'😍',available:true},
+            {item:'🚀',available:false},
+            {item:'🎉',available:true},
+        ])
+    })
+})
+
+```
+
+### Mock 으로 class 간의 의존성 제거 하기
+
+```js
+const ProductService = require('../product_service_no_di.js');
+const ProductClient = require('../product_client.js');
+
+jest.mock('../product_client'); // 1. 해당 모듈을 Mock 한다.
+
+describe('ProductService',()=>{
+    const fetchItems = jest.fn(async()=>{
+        return [
+            {item:'😍',available:true},
+            {item:'🚀',available:false},
+            {item:'🎉',available:true},
+        ]
+    });
+
+    // 2. Mock 한 모듈을 재 정의한다.(내가 만든 mock.fn() 으로
+    ProductClient.mockImplementation(()=>{
+        return{
+            fetchItems
+        }
+    })
+
+    let productService;
+    beforeEach(()=>{
+        productService = new ProductService();
+    })
+
+    it('should return array',async()=>{
+        const result = await productService.fetchAvailableItems();
+        expect(result).toEqual([
+            {item:'😍',available:true},
+            {item:'🎉',available:true},
+        ]);
+    })
+})
+
+```
